@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Printer } from 'lucide-react';
 import { Match, Team } from './TournamentManager';
 
@@ -17,6 +17,22 @@ type ScheduleSlot = {
 };
 
 export function ScheduleView() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setRefreshKey((prev) => prev + 1);
+    };
+
+    // Listen for custom storage event
+    window.addEventListener('tournamentDataUpdated', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('tournamentDataUpdated', handleStorageChange);
+    };
+  }, []);
+
   const timeSlots = [
     '5:30-6:00',
     '6:00-6:30',
@@ -86,7 +102,7 @@ export function ScheduleView() {
   });
 
   return (
-    <div>
+    <div key={refreshKey}>
       <div className="flex items-center justify-between mb-6 print:hidden">
         <div>
           <h2 className="text-gray-900 mb-1">Tournament Schedule</h2>

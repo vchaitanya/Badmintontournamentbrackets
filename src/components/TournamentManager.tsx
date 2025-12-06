@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Trophy, Users, Clock, MapPin, Calendar } from 'lucide-react';
 import { RoundRobinEvent } from './RoundRobinEvent';
 import { PoolEvent } from './PoolEvent';
@@ -24,6 +24,16 @@ export type Match = {
 
 export function TournamentManager() {
   const [activeTab, setActiveTab] = useState('mens35');
+  const [scheduleKey, setScheduleKey] = useState(0);
+
+  // Refresh schedule view when switching to it
+  useEffect(() => {
+    if (activeTab === 'schedule') {
+      setScheduleKey((prev) => prev + 1);
+      // Dispatch custom event to notify ScheduleView
+      window.dispatchEvent(new Event('tournamentDataUpdated'));
+    }
+  }, [activeTab]);
 
   const tabs = [
     { id: 'mens35', name: "Men's Doubles 35+", icon: Trophy },
@@ -101,7 +111,7 @@ export function TournamentManager() {
             totalTeams={12}
           />
         )}
-        {activeTab === 'schedule' && <ScheduleView />}
+        {activeTab === 'schedule' && <ScheduleView key={scheduleKey} />}
       </div>
     </div>
   );
